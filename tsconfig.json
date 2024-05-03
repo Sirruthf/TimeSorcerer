@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "forceConsistentCasingInFileNames":true,
+        "rootDir": "./",
+        "target": "ES6",
+        "outDir": "./js/"
+    }
+}

@@ -1,0 +1,78 @@
+:root {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    font-size: 4vw;
+    margin: 0;
+}
+
+.root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.sch_table {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 100%;
+}
+
+.selection {
+    position: absolute;
+    height: 100%;
+    background: rgba(100, 255, 100, 0.3);
+}
+
+.selection-left-border {
+    height: 100%;
+    border: 1px solid red;
+    position: absolute;
+    left: 0;
+    cursor: col-resize;
+}
+
+.selection-right-border {
+    height: 100%;
+    border: 1px solid red;
+    position: absolute;
+    right: 0;
+    cursor: col-resize;
+}
+
+.row-title {
+    font-size: 1.2rem;
+}
+
+.row {
+    display: flex;
+    position: relative;
+}
+
+$box-size: calc((100vw - 16px) / 24);
+
+.hour {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    font-size: 1rem;
+    
+    min-width: $box-size;
+    height: $box-size;
+
+    border: none;
+    box-shadow: 1px 1px 1px 1px rgb(0 0 0 / 10%);
+    
+    user-select: none;
+    transition: background linear .1s;
+
+    &:hover {
+        background: rgb(0 0 0 / 10%)
+    }
+}
