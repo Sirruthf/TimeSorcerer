@@ -22,7 +22,7 @@ async function getData(token, id) {
     const formData = new FormData();
     formData.append("token", token);
     formData.append("user_id", `${id}`);
-    response = await fetch("http://j78805858.myjino.ru/projects/DND/load.php", {
+    response = await fetch("https://j78805858.myjino.ru/projects/DND/load.php", {
         method: "POST",
         body: formData
     });
@@ -74,7 +74,7 @@ async function update(user, data) {
     formData.append("user_id", `${userID}`);
     formData.append("data", JSON.stringify(queryData));
     try {
-        await fetch("http://j78805858.myjino.ru/projects/DND/update.php", {
+        await fetch("https://j78805858.myjino.ru/projects/DND/update.php", {
             method: "POST",
             body: formData
         });
