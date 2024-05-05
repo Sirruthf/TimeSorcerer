@@ -45,7 +45,7 @@ function init(user_id, data) {
     }
     dialogue.style.visibility = "visible";
     for (let i = 0; i < data.length; i++) {
-        let option = q.tmplt(`<div class="dialogue_option"><img src="images/${data[i].name}.png">${data[i].name}</div>`).raw;
+        let option = q.tmplt(`<div class="dialogue_option"><img src="images/${data[i].name?.toLowerCase()}.png">${data[i].name}</div>`).raw;
         option.addEventListener("click", () => {
             rows.filter(row => row.name == data[i].name).forEach(row => {
                 row.isActive = true;
