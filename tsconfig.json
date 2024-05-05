@@ -6,7 +6,7 @@
         "forceConsistentCasingInFileNames":true,
         "rootDir": "./ts/",
         "outDir": "./js/",
-        "sourceRoot": "localhost:5500/ts/",
+        "sourceRoot": "/TimeSorcerer/ts/",
         "sourceMap": true
     }
 }
