@@ -1,73 +1,161 @@
 :root {
   height: 100%;
+  font-size: 1vw;
 }
 
 body {
   height: 100%;
-  font-size: 4vw;
   margin: 0;
+}
+
+.dialogue_overlay {
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.dialogue_overlay .dialogue_back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+}
+.dialogue_overlay .dialogue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  padding: 1rem;
+  border-radius: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.dialogue_overlay .dialogue .title {
+  padding: 0 1rem;
+  font-weight: bold;
+  font-size: 2rem;
+}
+.dialogue_overlay .dialogue .content {
+  display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 42rem;
+  height: 30rem;
+  max-height: 90vh;
+}
+.dialogue_overlay .dialogue .content .dialogue_option {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  transition: box-shadow ease-out 0.1s;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 12rem;
+  gap: 1rem;
+  font-size: 1.4rem;
+  max-height: 30%;
+}
+.dialogue_overlay .dialogue .content .dialogue_option:hover {
+  box-shadow: 0.3rem 0.3rem 0.5rem 0.1rem lightgray;
+}
+.dialogue_overlay .dialogue .content .dialogue_option img {
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .root {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-}
-
-.sch_table {
-  position: relative;
-  display: flex;
   flex-direction: column;
-  gap: 16px;
-  max-width: 100%;
 }
-
-.selection {
-  position: absolute;
-  height: 100%;
-  background: rgba(100, 255, 100, 0.3);
-}
-
-.selection-left-border {
-  height: 100%;
-  border: 1px solid red;
-  position: absolute;
-  left: 0;
-  cursor: col-resize;
-}
-
-.selection-right-border {
-  height: 100%;
-  border: 1px solid red;
-  position: absolute;
-  right: 0;
-  cursor: col-resize;
-}
-
-.row-title {
-  font-size: 1.2rem;
-}
-
-.row {
-  display: flex;
-  position: relative;
-}
-
-.hour {
+.root .day_card {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100vh;
+}
+.root .sch_table {
+  position: relative;
+  display: table;
+  max-width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 0 2rem 1rem lightgray;
+  border-radius: 32px;
+  width: 80vw;
+}
+.root .sch_table .row.header .hour {
+  text-align: left;
+}
+.root .sch_table .row {
+  display: table-row;
+  position: relative;
+  height: 11.4285714286vh;
+}
+.root .sch_table .row .row-title {
+  font-size: 1.2rem;
+}
+.root .sch_table .row .name-cell {
+  width: 3.2vw;
+  display: table-cell;
+  text-align: left;
+  vertical-align: middle;
+  font-family: Helvetica, Arial, sans-serif;
   font-size: 1rem;
-  min-width: calc((100vw - 16px) / 24);
-  height: calc((100vw - 16px) / 24);
-  border: none;
   box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+.root .sch_table .row .name-cell .name {
+  border-left: 8px solid transparent;
+}
+.root .sch_table .row .hour {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.8rem;
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
   transition: background linear 0.1s;
+  width: 3.2vw;
 }
-.hour:hover {
+.root .sch_table .row .hour.selected {
+  background: rgba(26, 184, 26, 0.2);
+  cursor: move;
+}
+.root .sch_table .row .hour h3 {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  margin: 0;
+}
+.root .sch_table .row .hour h3 .time {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+.root .sch_table .row.active .name {
+  padding-left: 0.4rem;
+  border-color: green;
+}
+.root .sch_table .row.active .hour:not(.selected):hover {
   background: rgba(0, 0, 0, 0.1);
+}
+.root .sch_table .row .selection {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(100, 255, 100, 0.3);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+.selection-left-border {
+  display: none;
+}
+
+.selection-right-border {
+  display: none;
 }/*# sourceMappingURL=style.css.map */

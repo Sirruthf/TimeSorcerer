@@ -6,6 +6,8 @@ const isElement_t_Collection = (col) => {
 };
 const has = (key, x) => (key in x);
 class W_Generic {
+    element;
+    proxy;
     constructor(element) {
         this.element = element;
         let self = this;
@@ -59,6 +61,7 @@ const isCSSValue = (value) => {
     return true;
 };
 class W_SinExt extends W_Generic {
+    receivedBy;
     constructor(element, receivedBy) {
         super(element);
         this.receivedBy = receivedBy;
@@ -119,10 +122,9 @@ class W_SinExt extends W_Generic {
         return this.proxy;
     }
     append(child) {
-        var _a;
         if (!child)
             throw new Error("Cannot append undefined");
-        if (((_a = child.stamp) === null || _a === void 0 ? void 0 : _a.name) == "W_SinExt")
+        if (child.stamp?.name == "W_SinExt")
             this.element.append(child.raw);
         else
             this.element.append(child);
@@ -263,3 +265,4 @@ export default new class extends Function {
     search(...args) { return Q(...args); }
     tmplt(...args) { return Q_template(...args); }
 }();
+//# sourceMappingURL=for_short.js.map

@@ -1,52 +1,73 @@
 import q from '../for_short.js';
 export default class TimeSelection {
-    constructor(parent, width_cb, left = 0, width = 0) {
-        var _a, _b;
-        this._left = 0;
-        this._width = 0;
-        this.element = q.tmplt("<div class='selection'><div class='selection-left-border'></div><div class='selection-right-border'></div></div>");
-        this.initX = 0;
-        this.width_cb = () => [0, 0];
+    parent;
+    _left = 0;
+    _width = 0;
+    element = q.tmplt("<div class='selection'><div class='selection-left-border'></div><div class='selection-right-border'></div></div>");
+    handle;
+    _start = 0;
+    _end = 0;
+    step = 0;
+    offset = 0;
+    name;
+    toString() {
+        return this.name;
+    }
+    constructor(parent, offset = 0, start = 0, end = 0, step = 0) {
+        this.name = Math.random().toString(36).slice(2, 7);
         this.parent = parent;
-        this.left = left;
-        this.width = width;
-        this.initX = left;
-        this.width_cb = width_cb;
-        this.adjust_cb = (event) => this.adjust(event);
+        this.step = step;
+        this.offset = offset;
+        this._start = start;
+        this._left = this.indexToValue(start);
+        this._end = end;
+        this._width = this.indexToValue(end - start + 1);
+        this.update();
         this.parent.append(this.element.raw);
-        (_a = this.element.querySelector(".selection-left-border")) === null || _a === void 0 ? void 0 : _a.addEventListener("mousedown", (event) => this.grab(event, "left"));
-        (_b = this.element.querySelector(".selection-right-border")) === null || _b === void 0 ? void 0 : _b.addEventListener("mousedown", (event) => this.grab(event, "right"));
+        this.element.style.transition = "transform ease-out .3s";
     }
-    grab(event, handle) {
-        this.initX = event.clientX;
-        this.handle = handle;
-        q().style.cursor = "col-resize";
-        q().addEventListener("mousemove", this.adjust_cb);
-        q().addEventListener("mouseup", this.release.bind(this));
-        event.stopPropagation();
-    }
-    adjust(event) {
-        if (!this.width_cb)
-            return;
-        [this.left, this.width] =
-            this.width_cb(event, this.handle, this.element.offsetLeft, this.element.offsetWidth);
-    }
-    release() {
-        q().style.cursor = "";
-        q().removeEventListener("mousemove", this.adjust_cb);
-    }
-    get left() {
-        return this._left;
-    }
-    set left(value) {
-        this._left = value;
-        this.element.style.left = value + "px";
+    remove() {
+        this.element.remove();
     }
     get width() {
         return this._width;
     }
     set width(value) {
-        this._width = value;
-        this.element.style.width = value + "px";
+        this._end = this._start + this.valueToIndex(value);
+        this._width = this.indexToValue(this._end - this._start);
+        this.update();
+    }
+    set end(value) {
+        this._end = value;
+        this._width = this.indexToValue(value - this._start + 1);
+        this.update();
+    }
+    get end() {
+        return this._end;
+    }
+    set start(value) {
+        this._start = value;
+        this._left = this.indexToValue(value);
+        this._width = this.indexToValue(this._end - value + 1);
+        this.update();
+    }
+    get start() {
+        return this._start;
+    }
+    startUpdateInstant() {
+        this.element.style.transition = "";
+    }
+    endUpdateInstant() {
+        this.element.style.transition = "transform ease-out .3s";
+    }
+    update() {
+        this.element.style.transform = `translateX(${this.offset + this._left}px) scaleX(${this._width})`;
+    }
+    indexToValue(index) {
+        return index * this.step;
+    }
+    valueToIndex(value) {
+        return Math.trunc(value / this.step);
     }
 }
+//# sourceMappingURL=Selection.js.map

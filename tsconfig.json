@@ -1,9 +1,12 @@
 {
     "compilerOptions": {
+        "module": "ES2022",
+        "target": "ESNext",
         "strict": true,
         "forceConsistentCasingInFileNames":true,
-        "rootDir": "./",
-        "target": "ES6",
-        "outDir": "./js/"
+        "rootDir": "./ts/",
+        "outDir": "./js/",
+        "sourceRoot": "localhost:5500/ts/",
+        "sourceMap": true
     }
 }
