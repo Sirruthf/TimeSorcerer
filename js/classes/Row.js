@@ -9,7 +9,7 @@ export default class Row {
     range_cb = (event) => { };
     end_cb = (event) => { };
     update_cb = () => { };
-    constructor(title, isActive, utc_id, update_cb) {
+    constructor(title, date, isActive, utc_id, update_cb) {
         this._isActive = false;
         this.isRanging = false;
         let isHeader = false;
@@ -22,9 +22,9 @@ export default class Row {
         let result = "";
         result += `<div class="row${isHeader ? " header" : ""}${this._isActive ? " active" : ""}"><div class="name-cell"><div class="name">${title}</div></div>`;
         let now = new Date();
-        let row = new Date(now.getFullYear(), now.getMonth(), now.getDay(), now.getHours() + 1);
+        let row = new Date(now.getFullYear(), now.getMonth(), date, 0);
         for (let i = 0; i < 24; i++) {
-            result += `<div class='hour' data-ts='${utc_id[i]}' data-hour='${row.getHours()}' data-index='${i}'>${isHeader ? _24_to_12(row.getHours()).join(" ") : ""}</div>`;
+            result += `<div class='hour${row.getTime() < now.getTime() ? " disabled" : ""}' data-ts='${utc_id[i]}' data-hour='${row.getHours()}' data-index='${i}'>${isHeader ? _24_to_12(row.getHours()).join(" ") : ""}</div>`;
             row.setHours(row.getHours() + 1);
         }
         result += "</div>";
@@ -88,6 +88,9 @@ export default class Row {
     get tableStart() {
         return this.element.getBoundingClientRect().left;
     }
+    isCellDisabled(index) {
+        return this.nthCell(index).classList.contains("disabled");
+    }
     nthCell(index) {
         return this.element.querySelector(`.hour:nth-child(${index + 2})`);
     }
@@ -143,9 +146,11 @@ export default class Row {
             return;
         if (this.isRanging)
             return;
-        this.isRanging = true;
         let startX = event.clientX;
         let startI = this.toIndex(startX);
+        if (this.isCellDisabled(startI))
+            return;
+        this.isRanging = true;
         let activeSelection = this.selectionAt(startI);
         if (!activeSelection) {
             activeSelection = new TimeSelection(this.element, () => this.cellStart, startI, startI, () => this.step);
@@ -163,6 +168,8 @@ export default class Row {
         this.markCell(startI, "from");
         this.range_cb = (event) => {
             let endI = this.toIndex(event.clientX);
+            if (this.isCellDisabled(endI))
+                return;
             event.clientX < startX ?
                 this.markCell(startI, "til") :
                 this.markCell(startI, "from");
@@ -180,6 +187,8 @@ export default class Row {
     }
     endSelectionManage(activeSelection, startI, event) {
         let endI = this.toIndex(event.clientX);
+        if (this.isCellDisabled(endI))
+            return;
         if (startI == endI)
             return;
         this.isRanging = false;

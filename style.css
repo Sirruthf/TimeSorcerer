@@ -137,6 +137,9 @@ body {
   background: rgba(26, 184, 26, 0.2);
   cursor: move;
 }
+.root .sch_table .row .hour.disabled {
+  background: lightgrey;
+}
 .root .sch_table .row .hour h3 {
   width: calc(min(98vw, 1536px) / 25);
   font-family: Helvetica, Arial, sans-serif;
@@ -151,7 +154,7 @@ body {
   padding-left: 0.4rem;
   border-color: green;
 }
-.root .sch_table .row.active .hour:not(.selected):hover {
+.root .sch_table .row.active .hour:not(.selected):not(.disabled):hover {
   background: rgba(0, 0, 0, 0.1);
 }
 .root .sch_table .row .selection {

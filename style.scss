@@ -165,6 +165,10 @@ body {
                     background: rgba(26, 184, 26, 0.2);
                     cursor: move;
                 }
+
+                &.disabled {
+                    background: lightgrey;
+                }
                 
                 h3 {
                     width: $box-width;
@@ -185,7 +189,7 @@ body {
                     border-color: green;
                 }
 
-                .hour:not(.selected) {
+                .hour:not(.selected):not(.disabled) {
                     &:hover {
                         background: rgb(0 0 0 / 10%);
                     }

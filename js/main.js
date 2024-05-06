@@ -4,7 +4,7 @@ import User from './classes/User.js';
 const NONE = -1;
 const userID = getID();
 const token = document.location.search.substring(1);
-const utc_ranges = getUTCRanges();
+const day_ranges = getTimeRanges();
 try {
     init(userID, await getData(token, userID));
 }
@@ -12,15 +12,16 @@ catch (err) {
     document.documentElement.innerHTML = "";
     throw err;
 }
-function getUTCRanges() {
+function getTimeRanges() {
     let now = new Date();
-    let utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDay(), now.getUTCHours());
-    let utc_range = [...Array(72).keys()].map(_ => {
-        utc.setHours(utc.getHours() + 1);
-        return utc.getTime();
+    let leap = now.getHours() >= 23 ? 1 : 0;
+    let day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + leap);
+    let day_range = [...Array(72).keys()].map(_ => {
+        day.setHours(day.getHours() + 1);
+        return day.getTime();
     });
     return [...Array(3).keys()].map(i => {
-        return utc_range.slice(i * 24, (i + 1) * 24);
+        return day_range.slice(i * 24, (i + 1) * 24);
     });
 }
 function getID() {
@@ -47,10 +48,10 @@ function init(user_id, data) {
     let content = q(".content");
     let rows = [];
     let users = data.map(item => new User(item));
-    users.forEach(user => user.spliceData(utc_ranges));
+    users.forEach(user => user.spliceData(day_ranges));
     for (let i = 0; i < 3; i++) {
         let table = q.tmplt('<div class="day_card"><div class="sch_table"></div></div>');
-        rows.push(...populateCard(table.firstElementChild, user_id, users, utc_ranges[i], i));
+        rows.push(...populateCard(table.firstElementChild, user_id, users, day_ranges[i], i));
         root.append(table.raw);
     }
     let dialogue = q(".dialogue_overlay");
@@ -113,13 +114,15 @@ async function update(user, data, table_id) {
 function populateCard(table, user_id, users, range, table_id) {
     let rows = [];
     let now = new Date();
-    let month = (now.getMonth() < 9 ? "0" : "") + (now.getMonth() + 1);
-    let header = new Row(`${now.getDate()}.${month}`, true, range);
+    let leap = now.getHours() >= 23 ? 1 : 0;
+    let table_date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + leap + table_id);
+    let month = (table_date.getMonth() < 9 ? "0" : "") + (table_date.getMonth() + 1);
+    let header = new Row(`${table_date.getDate()}.${month}`, table_date.getDate(), true, range);
     table.append(header.element);
     for (let j = 0; j < users.length; j++) {
         if (!users[j].name)
             throw new Error("empty name");
-        let row = new Row(users[j].name ?? "", j == user_id, range, (_, selections) => update(users[j], selections, table_id));
+        let row = new Row(users[j].name ?? "", table_date.getDate(), j == user_id, range, (_, selections) => update(users[j], selections, table_id));
         table.append(row.element);
         rows.push(row);
         requestAnimationFrame(() => row.init(users[j].tables[table_id]));
