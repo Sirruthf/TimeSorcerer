@@ -81,7 +81,7 @@ function init (user_id: number, data: UserData[]) {
     dialogue.style.visibility = "visible";
 
     for (let i = 0; i < data.length; i++) {
-        let option = q.tmplt(`<div class="dialogue_option"><img src="https://j78805858.myjino.ru/projects/DND/images/${data[i].name?.toLowerCase()}.png?${token}">${data[i].name}</div>`).raw;
+        let option = q.tmplt(`<div class="dialogue_option"><img src="https://j78805858.myjino.ru/projects/DND/images/${data[i].image}?${token}">${data[i].name}</div>`).raw;
         option.addEventListener("click", () => {
             rows.filter(row => row.name == data[i].name).forEach(row => {
                 row.isActive = true;

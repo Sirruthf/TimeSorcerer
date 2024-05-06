@@ -48,7 +48,6 @@ body {
             flex-wrap: wrap;
             // justify-content: space-between;
             max-width: 42rem;
-            height: 30rem;
             max-height: 90vh;
 
             .dialogue_option {
@@ -124,7 +123,7 @@ body {
         }
 
         $box-width: calc($table-width / 25);
-        $box-height: calc($table-height / 7);
+        $box-height: calc($table-height / 8);
 
         .row {
             display: table-row;

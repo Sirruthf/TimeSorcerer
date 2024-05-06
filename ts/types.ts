@@ -2,6 +2,7 @@ export type UserData = {
     name?: string,
     timezone?: number,
     data?: RangeList,
+    image?: string
 };
 
 export type RangeList = {

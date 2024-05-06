@@ -43,7 +43,6 @@ body {
   display: inline-flex;
   flex-wrap: wrap;
   max-width: 42rem;
-  height: 30rem;
   max-height: 90vh;
 }
 .dialogue_overlay .dialogue .content .dialogue_option {
@@ -106,7 +105,7 @@ body {
 .root .sch_table .row {
   display: table-row;
   position: relative;
-  height: calc(min(80vh, min(98vw, 1536px) / 2) / 7);
+  height: calc(min(80vh, min(98vw, 1536px) / 2) / 8);
 }
 .root .sch_table .row .row-title {
   font-size: 1.2rem;
