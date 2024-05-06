@@ -5,7 +5,6 @@ export default class User {
     tables = [];
     image;
     constructor(init) {
-        console.log(init);
         this.name = init.name ?? "";
         this.timezone = init.timezone ?? 0;
         this.data = init.data ?? [];

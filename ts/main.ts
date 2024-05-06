@@ -111,29 +111,26 @@ function init (user_id: number, data: UserData[]) {
     }, { passive: false });
 }
 
-async function update (user: User, data: RangeList, table_id: number) {
+async function update (user: User, user_id: number, data: RangeList, table_id: number) {
 
-    let queryData: {
-        name: string,
-        timezone: number,
-        data: RangeList
-    } = {
+    let queryData: UserData = {
         name: user.name,
         timezone: -new Date().getTimezoneOffset() / 60,
-        data: []
+        data: [],
+        image: user.image
     };
 
     for (let i = 0; i < user.tables.length; i++) {
         if (i != table_id)
             for (let range of user.tables[i])
-                queryData.data.push(range);
+                queryData.data?.push(range);
         else
             for (let range of data)
-                queryData.data.push(range);
+                queryData.data?.push(range);
     }
 
     const formData = new FormData();
-    formData.append("user_id", `${userID}`);
+    formData.append("user_id", `${user_id}`);
     formData.append("data", JSON.stringify(queryData));
 
     try {
@@ -161,7 +158,7 @@ function populateCard (table: HTMLElement, user_id: number, users: User[], range
     {
         if (!users[j].name) throw new Error("empty name");
         
-        let row = new Row(users[j].name ?? "", table_date.getDate(), j == user_id, range, (_, selections) => update(users[j], selections, table_id));
+        let row = new Row(users[j].name ?? "", table_date.getDate(), j == user_id, range, (_, selections) => update(users[j], j, selections, table_id));
         
         table.append(row.element);
         rows.push(row);

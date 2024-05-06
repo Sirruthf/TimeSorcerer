@@ -84,22 +84,23 @@ function init(user_id, data) {
         event.preventDefault();
     }, { passive: false });
 }
-async function update(user, data, table_id) {
+async function update(user, user_id, data, table_id) {
     let queryData = {
         name: user.name,
         timezone: -new Date().getTimezoneOffset() / 60,
-        data: []
+        data: [],
+        image: user.image
     };
     for (let i = 0; i < user.tables.length; i++) {
         if (i != table_id)
             for (let range of user.tables[i])
-                queryData.data.push(range);
+                queryData.data?.push(range);
         else
             for (let range of data)
-                queryData.data.push(range);
+                queryData.data?.push(range);
     }
     const formData = new FormData();
-    formData.append("user_id", `${userID}`);
+    formData.append("user_id", `${user_id}`);
     formData.append("data", JSON.stringify(queryData));
     try {
         await fetch("https://j78805858.myjino.ru/projects/DND/update.php", {
@@ -122,7 +123,7 @@ function populateCard(table, user_id, users, range, table_id) {
     for (let j = 0; j < users.length; j++) {
         if (!users[j].name)
             throw new Error("empty name");
-        let row = new Row(users[j].name ?? "", table_date.getDate(), j == user_id, range, (_, selections) => update(users[j], selections, table_id));
+        let row = new Row(users[j].name ?? "", table_date.getDate(), j == user_id, range, (_, selections) => update(users[j], j, selections, table_id));
         table.append(row.element);
         rows.push(row);
         requestAnimationFrame(() => row.init(users[j].tables[table_id]));

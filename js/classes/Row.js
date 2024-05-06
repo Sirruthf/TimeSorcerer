@@ -5,12 +5,13 @@ export default class Row {
     isRanging;
     element;
     selections = [];
-    _title = "";
+    _title;
     range_cb = (event) => { };
     end_cb = (event) => { };
     update_cb = () => { };
     constructor(title, date, isActive, utc_id, update_cb) {
         this._isActive = false;
+        this._title = title;
         this.isRanging = false;
         let isHeader = false;
         if (update_cb) {

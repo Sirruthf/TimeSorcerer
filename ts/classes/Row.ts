@@ -11,7 +11,7 @@ export default class Row {
     isRanging: boolean;
     element: HTMLElement;
     selections: TimeSelection[] = [];
-    _title: string = "";
+    _title: string;
     range_cb = (event: MouseEvent) => {};
     end_cb = (event: MouseEvent) => {};
     update_cb: update_cb_t = () => {};
@@ -20,6 +20,7 @@ export default class Row {
     constructor (title: string, date: number, isActive: boolean, utc_id: timestamp[], update_cb: update_cb_t);
     constructor (title: string, date: number, isActive: boolean, utc_id: timestamp[], update_cb?: update_cb_t) {
         this._isActive = false;
+        this._title = title;
         this.isRanging = false;
         let isHeader = false;
 
