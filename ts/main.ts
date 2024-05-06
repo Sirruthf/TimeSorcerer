@@ -95,9 +95,10 @@ function init (user_id: number, data: UserData[]) {
 async function update (user: UserData, data: TimeSelection[], table_id: idx) {
     let queryData = user;
 
+    if (!queryData.data) { queryData.data = [[],[],[]]; }
+    queryData.data[table_id] = [];
+
     for (let entry of data) {
-        if (!queryData.data) { queryData.data = [[],[],[]]; }
-        console.log(table_id);
         queryData.data[table_id].push({
             start: entry.start,
             end: entry.end

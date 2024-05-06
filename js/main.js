@@ -70,11 +70,11 @@ function init(user_id, data) {
 }
 async function update(user, data, table_id) {
     let queryData = user;
+    if (!queryData.data) {
+        queryData.data = [[], [], []];
+    }
+    queryData.data[table_id] = [];
     for (let entry of data) {
-        if (!queryData.data) {
-            queryData.data = [[], [], []];
-        }
-        console.log(table_id);
         queryData.data[table_id].push({
             start: entry.start,
             end: entry.end
