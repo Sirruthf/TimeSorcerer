@@ -1,9 +1,9 @@
 import q from '../for_short.js';
-import { UserData, idx, px } from '../types.js';
+import { RangeList, UserData, idx, px } from '../types.js';
 import TimeSelection from './Selection.js';
 
 
-type update_cb_t = (user: UserData, data: TimeSelection[]) => void;
+type update_cb_t = (name: string, data: TimeSelection[]) => void;
 
 
 export default class Row {
@@ -11,7 +11,6 @@ export default class Row {
     isRanging: boolean;
     element: HTMLElement;
     selections: TimeSelection[] = [];
-    userData: UserData | null = null;
     _title: string = "";
     range_cb = (event: MouseEvent) => {};
     end_cb = (event: MouseEvent) => {};
@@ -35,6 +34,8 @@ export default class Row {
         let row = new Date(now.getFullYear(),
             now.getMonth(), now.getDay(), now.getHours() + 1);
 
+        console.log(this._isActive);
+
         result += `<div class="row${isHeader ? " header" : ""}${this._isActive ? " active" : ""}"><div class="name-cell"><div class="name">${title}</div></div>`;
         
         for (let i = 0; i < 24; i++) {
@@ -48,15 +49,17 @@ export default class Row {
 
         this.element.addEventListener("click",
             (event: MouseEvent) => this.manageSelection(event));
+        window.addEventListener("resize", () => {
+            this.selections.forEach(item => item.startUpdateInstant());
+            this.selections.forEach(item => item.update());
+            setTimeout(() => this.selections.forEach(item => item.endUpdateInstant()));
+        });
     }
 
-    init (data: UserData) {
-        this.name = data.name ?? this.name;
-        this.userData = data;
-
-        for (let entry of data.data ?? []) {
+    init (data: RangeList) {
+        for (let entry of data) {
             this.selections.push(new TimeSelection(
-                this.element, this.cellStart, entry.start, entry.end, this.step
+                this.element, () => this.cellStart, entry.start, entry.end, () => this.step
             ));
             this.markCell(entry.start, "from");
             this.markCell(entry.end, "til");
@@ -167,7 +170,7 @@ export default class Row {
 
         if (!activeSelection) {
             activeSelection = new TimeSelection(
-                this.element, this.cellStart, startI, startI, this.step
+                this.element, () => this.cellStart, startI, startI, () => this.step
             );
 
             this.selections.push(activeSelection);
@@ -228,8 +231,8 @@ export default class Row {
         }
 
         if (!overlap) {
-            if (this.userData)
-                this.update_cb(this.userData, this.selections);
+            if (this.update_cb)
+                this.update_cb(this.name, this.selections);
 
             endI > startI ?
                 this.markCell(endI, "til") :
@@ -241,13 +244,11 @@ export default class Row {
         this.removeSelection(activeSelection);
         this.processOverlap(startI, endI, overlap);
 
-        if (this.userData)
-            this.update_cb(this.userData, this.selections);
+        if (this.update_cb)
+            this.update_cb(this.name, this.selections);
     };
 
     processOverlap (startI: idx, endI: idx, overlap: TimeSelection) {
-
-        overlap.startUpdateInstant();
         if (startI < endI) {
             if (endI < overlap.start) {
                 this.clearCell(overlap.start);
@@ -301,7 +302,6 @@ export default class Row {
                 }
             }
         }
-        requestAnimationFrame(() => overlap.endUpdateInstant());
     }
 }
 

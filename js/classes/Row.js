@@ -5,7 +5,6 @@ export default class Row {
     isRanging;
     element;
     selections = [];
-    userData = null;
     _title = "";
     range_cb = (event) => { };
     end_cb = (event) => { };
@@ -23,6 +22,7 @@ export default class Row {
         let now = new Date();
         let result = "";
         let row = new Date(now.getFullYear(), now.getMonth(), now.getDay(), now.getHours() + 1);
+        console.log(this._isActive);
         result += `<div class="row${isHeader ? " header" : ""}${this._isActive ? " active" : ""}"><div class="name-cell"><div class="name">${title}</div></div>`;
         for (let i = 0; i < 24; i++) {
             result += `<div class='hour' data-hour='${row.getHours()}'>${isHeader ? _24_to_12(row.getHours()).join(" ") : ""}</div>`;
@@ -31,12 +31,15 @@ export default class Row {
         result += "</div>";
         this.element = q.tmplt(result).raw;
         this.element.addEventListener("click", (event) => this.manageSelection(event));
+        window.addEventListener("resize", () => {
+            this.selections.forEach(item => item.startUpdateInstant());
+            this.selections.forEach(item => item.update());
+            setTimeout(() => this.selections.forEach(item => item.endUpdateInstant()));
+        });
     }
     init(data) {
-        this.name = data.name ?? this.name;
-        this.userData = data;
-        for (let entry of data.data ?? []) {
-            this.selections.push(new TimeSelection(this.element, this.cellStart, entry.start, entry.end, this.step));
+        for (let entry of data) {
+            this.selections.push(new TimeSelection(this.element, () => this.cellStart, entry.start, entry.end, () => this.step));
             this.markCell(entry.start, "from");
             this.markCell(entry.end, "til");
         }
@@ -128,7 +131,7 @@ export default class Row {
         let startI = this.toIndex(startX);
         let activeSelection = this.selectionAt(startI);
         if (!activeSelection) {
-            activeSelection = new TimeSelection(this.element, this.cellStart, startI, startI, this.step);
+            activeSelection = new TimeSelection(this.element, () => this.cellStart, startI, startI, () => this.step);
             this.selections.push(activeSelection);
         }
         else {
@@ -175,8 +178,8 @@ export default class Row {
             this.clearCell(sub.end);
         }
         if (!overlap) {
-            if (this.userData)
-                this.update_cb(this.userData, this.selections);
+            if (this.update_cb)
+                this.update_cb(this.name, this.selections);
             endI > startI ?
                 this.markCell(endI, "til") :
                 this.markCell(endI, "from");
@@ -185,12 +188,11 @@ export default class Row {
         this.clearCell(startI);
         this.removeSelection(activeSelection);
         this.processOverlap(startI, endI, overlap);
-        if (this.userData)
-            this.update_cb(this.userData, this.selections);
+        if (this.update_cb)
+            this.update_cb(this.name, this.selections);
     }
     ;
     processOverlap(startI, endI, overlap) {
-        overlap.startUpdateInstant();
         if (startI < endI) {
             if (endI < overlap.start) {
                 this.clearCell(overlap.start);
@@ -253,7 +255,6 @@ export default class Row {
                 }
             }
         }
-        requestAnimationFrame(() => overlap.endUpdateInstant());
     }
 }
 function intToInd(value, step) {

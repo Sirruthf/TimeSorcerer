@@ -7,24 +7,28 @@ export default class TimeSelection {
     handle;
     _start = 0;
     _end = 0;
-    step = 0;
-    offset = 0;
+    _step = () => 0;
+    _offset = () => 0;
     name;
     toString() {
         return this.name;
     }
-    constructor(parent, offset = 0, start = 0, end = 0, step = 0) {
+    constructor(parent, offset = () => 0, start = 0, end = 0, step = () => 0) {
         this.name = Math.random().toString(36).slice(2, 7);
         this.parent = parent;
-        this.step = step;
-        this.offset = offset;
+        this._step = step;
+        this._offset = offset;
         this._start = start;
-        this._left = this.indexToValue(start);
         this._end = end;
-        this._width = this.indexToValue(end - start + 1);
         this.update();
         this.parent.append(this.element.raw);
         this.element.style.transition = "transform ease-out .3s";
+    }
+    get offset() {
+        return this._offset();
+    }
+    get step() {
+        return this._step();
     }
     remove() {
         this.element.remove();
@@ -34,12 +38,10 @@ export default class TimeSelection {
     }
     set width(value) {
         this._end = this._start + this.valueToIndex(value);
-        this._width = this.indexToValue(this._end - this._start);
         this.update();
     }
     set end(value) {
         this._end = value;
-        this._width = this.indexToValue(value - this._start + 1);
         this.update();
     }
     get end() {
@@ -47,8 +49,6 @@ export default class TimeSelection {
     }
     set start(value) {
         this._start = value;
-        this._left = this.indexToValue(value);
-        this._width = this.indexToValue(this._end - value + 1);
         this.update();
     }
     get start() {
@@ -61,6 +61,8 @@ export default class TimeSelection {
         this.element.style.transition = "transform ease-out .3s";
     }
     update() {
+        this._left = this.indexToValue(this._start);
+        this._width = this.indexToValue(this._end - this._start + 1);
         this.element.style.transform = `translateX(${this.offset + this._left}px) scaleX(${this._width})`;
     }
     indexToValue(index) {

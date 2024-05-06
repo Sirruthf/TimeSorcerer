@@ -83,31 +83,48 @@ body {
     justify-content: center;
     flex-direction: column;
 
+    $table-width: min(98vw, 1536px);
+    $table-height: min(80vh, $table-width / 2);
 
     .day_card {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 100vh;
+        width: 100%;
+        max-width: $table-width;
+        height: $table-height;
+        margin-top: 7.5vh;
+        
+        &:not(:first-child) {
+            margin-top: 5vh;
+        }
+        
+        &:last-child {
+            margin-bottom: 7.5vh;
+        }
     }
-
-    $table-width: 80vw;
 
     .sch_table {
         position: relative;
         display: table;
-        max-width: 100%;
         border-collapse: collapse;
         box-shadow: 0 0 2rem 1rem lightgray;
+        height: 100%;
         border-radius: 32px;
-        width: $table-width;
+        table-layout: fixed;
 
-        .row.header .hour {
-            text-align: left;
+        .row.header {
+            .name {
+                font-weight: bold;
+            }
+            
+            .hour {
+                text-align: left;
+            }
         }
 
         $box-width: calc($table-width / 25);
-        $box-height: calc(80vh / 7);
+        $box-height: calc($table-height / 7);
 
         .row {
             display: table-row;
@@ -119,8 +136,6 @@ body {
             }
 
             .name-cell {
-                width: $box-width;
-                
                 display: table-cell;
                 text-align: left;
                 vertical-align: middle;
@@ -138,12 +153,13 @@ body {
                 display: table-cell;
                 text-align: center;
                 vertical-align: middle;
+
+                width: $box-width;
                 
                 font-size: .8rem;
                 
                 user-select: none;
                 transition: background linear .1s;
-                width: $box-width;
             
                 &.selected {
                     background: rgba(26, 184, 26, 0.2);
@@ -151,6 +167,7 @@ body {
                 }
                 
                 h3 {
+                    width: $box-width;
                     font-family: Helvetica, Arial, sans-serif;
                     font-weight: normal;
                     margin: 0;

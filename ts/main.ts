@@ -1,7 +1,7 @@
 import q from './for_short.js';
 import Row from './classes/Row.js';
 import TimeSelection from './classes/Selection.js';
-import { UserData } from './types.js';
+import { UserData, idx } from './types.js';
 
 
 const NONE = -1;
@@ -48,7 +48,7 @@ function init (user_id: number, data: UserData[]) {
     
     for (let i = 0; i < 3; i++) {
         let table: any = q.tmplt('<div class="day_card"><div class="sch_table"></div></div>');
-        rows.push(...populateCard(table.firstElementChild as HTMLElement, user_id, data));
+        rows.push(...populateCard(table.firstElementChild as HTMLElement, user_id, i, data));
         root.append(table.raw);
     }
 
@@ -62,7 +62,7 @@ function init (user_id: number, data: UserData[]) {
     dialogue.style.visibility = "visible";
 
     for (let i = 0; i < data.length; i++) {
-        let option = q.tmplt(`<div class="dialogue_option"><img src="images/${data[i].name?.toLowerCase()}.png">${data[i].name}</div>`).raw;
+        let option = q.tmplt(`<div class="dialogue_option"><img src="https://j78805858.myjino.ru/projects/DND/images/${data[i].name?.toLowerCase()}.png?${token}">${data[i].name}</div>`).raw;
         option.addEventListener("click", () => {
             rows.filter(row => row.name == data[i].name).forEach(row => {
                 row.isActive = true;
@@ -73,18 +73,32 @@ function init (user_id: number, data: UserData[]) {
         });
         content.append(option);
     }
+
+    let currentCard = 0;
+
+    document.body.addEventListener("wheel", event => {
+        event.deltaY > 0 ? currentCard++ : currentCard--;
+        currentCard < 0 ? currentCard++ : 0;
+        currentCard > 2 ? currentCard-- : 0;
+        
+        let day_card: HTMLElement = q(".day_card", true)[currentCard];
+        
+        day_card.scrollIntoView({
+            "block": "center",
+            "behavior": "smooth"
+        });
+
+        event.preventDefault();
+    }, { passive: false });
 }
 
-async function update (user: UserData, data: TimeSelection[]) {
-    let queryData: UserData = {
-        name: user.name,
-        timezone: user.timezone,
-        data: []
-    };
+async function update (user: UserData, data: TimeSelection[], table_id: idx) {
+    let queryData = user;
 
     for (let entry of data) {
-        if (!queryData.data) continue;
-        queryData.data.push({
+        if (!queryData.data) { queryData.data = [[],[],[]]; }
+        console.log(table_id);
+        queryData.data[table_id].push({
             start: entry.start,
             end: entry.end
         });
@@ -104,7 +118,7 @@ async function update (user: UserData, data: TimeSelection[]) {
     }
 }
 
-function populateCard (table: HTMLElement, user_id: number, data: UserData[]) {
+function populateCard (table: HTMLElement, user_id: number, table_id: number, data: UserData[]) {
     let now = new Date();
     let rows = [];
 
@@ -112,16 +126,16 @@ function populateCard (table: HTMLElement, user_id: number, data: UserData[]) {
     let myZone = (offset >= 0 ? "+" : "") + offset;
 
     let month = (now.getMonth() < 9 ? "0" : "") + (now.getMonth() + 1)
-    let header = new Row(`${now.getDate()}.${month}`, true);
+    let header = new Row(`${now.getDate() + table_id}.${month}`, true);
     table.append(header.element);
 
     for (let j = 0; j < data.length; j++)
     {
         if (!data[j].name) throw new Error("empty name");
-        let row = new Row(data[j].name ?? "", j == user_id, update);
+        let row = new Row(data[j].name ?? "", j == user_id, (_, range) => update(data[j], range, table_id as idx));
         table.append(row.element);
         rows.push(row);
-        requestAnimationFrame(() => row.init(data[j]));
+        requestAnimationFrame(() => row.init((data[j].data ?? [])[table_id] ?? []));
     }
 
     return rows;
