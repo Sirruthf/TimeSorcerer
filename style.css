@@ -42,7 +42,7 @@ body {
 .dialogue_overlay .dialogue .content {
   display: inline-flex;
   flex-wrap: wrap;
-  max-width: 42rem;
+  max-width: 48rem;
   max-height: 90vh;
 }
 .dialogue_overlay .dialogue .content .dialogue_option {
@@ -53,7 +53,7 @@ body {
   align-items: center;
   cursor: pointer;
   border-radius: 8px;
-  width: 12rem;
+  width: 10rem;
   gap: 1rem;
   font-size: 1.4rem;
   max-height: 30%;
