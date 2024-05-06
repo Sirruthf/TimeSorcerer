@@ -1,14 +1,27 @@
 import q from './for_short.js';
 import Row from './classes/Row.js';
+import User from './classes/User.js';
 const NONE = -1;
-let userID = getID();
-let token = document.location.search.substring(1);
+const userID = getID();
+const token = document.location.search.substring(1);
+const utc_ranges = getUTCRanges();
 try {
     init(userID, await getData(token, userID));
 }
 catch (err) {
     document.documentElement.innerHTML = "";
     throw err;
+}
+function getUTCRanges() {
+    let now = new Date();
+    let utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDay(), now.getUTCHours());
+    let utc_range = [...Array(72).keys()].map(_ => {
+        utc.setHours(utc.getHours() + 1);
+        return utc.getTime();
+    });
+    return [...Array(3).keys()].map(i => {
+        return utc_range.slice(i * 24, (i + 1) * 24);
+    });
 }
 function getID() {
     return +(document.cookie
@@ -33,9 +46,11 @@ function init(user_id, data) {
     let root = q('.root');
     let content = q(".content");
     let rows = [];
+    let users = data.map(item => new User(item));
+    users.forEach(user => user.spliceData(utc_ranges));
     for (let i = 0; i < 3; i++) {
         let table = q.tmplt('<div class="day_card"><div class="sch_table"></div></div>');
-        rows.push(...populateCard(table.firstElementChild, user_id, i, data));
+        rows.push(...populateCard(table.firstElementChild, user_id, users, utc_ranges[i], i));
         root.append(table.raw);
     }
     let dialogue = q(".dialogue_overlay");
@@ -69,16 +84,18 @@ function init(user_id, data) {
     }, { passive: false });
 }
 async function update(user, data, table_id) {
-    let queryData = user;
-    if (!queryData.data) {
-        queryData.data = [[], [], []];
-    }
-    queryData.data[table_id] = [];
-    for (let entry of data) {
-        queryData.data[table_id].push({
-            start: entry.start,
-            end: entry.end
-        });
+    let queryData = {
+        name: user.name,
+        timezone: -new Date().getTimezoneOffset() / 60,
+        data: []
+    };
+    for (let i = 0; i < user.tables.length; i++) {
+        if (i != table_id)
+            for (let range of user.tables[i])
+                queryData.data.push(range);
+        else
+            for (let range of data)
+                queryData.data.push(range);
     }
     const formData = new FormData();
     formData.append("user_id", `${userID}`);
@@ -93,21 +110,19 @@ async function update(user, data, table_id) {
         console.log(err);
     }
 }
-function populateCard(table, user_id, table_id, data) {
-    let now = new Date();
+function populateCard(table, user_id, users, range, table_id) {
     let rows = [];
-    let offset = -now.getTimezoneOffset() / 60;
-    let myZone = (offset >= 0 ? "+" : "") + offset;
+    let now = new Date();
     let month = (now.getMonth() < 9 ? "0" : "") + (now.getMonth() + 1);
-    let header = new Row(`${now.getDate() + table_id}.${month}`, true);
+    let header = new Row(`${now.getDate()}.${month}`, true, range);
     table.append(header.element);
-    for (let j = 0; j < data.length; j++) {
-        if (!data[j].name)
+    for (let j = 0; j < users.length; j++) {
+        if (!users[j].name)
             throw new Error("empty name");
-        let row = new Row(data[j].name ?? "", j == user_id, (_, range) => update(data[j], range, table_id));
+        let row = new Row(users[j].name ?? "", j == user_id, range, (_, selections) => update(users[j], selections, table_id));
         table.append(row.element);
         rows.push(row);
-        requestAnimationFrame(() => row.init((data[j].data ?? [])[table_id] ?? []));
+        requestAnimationFrame(() => row.init(users[j].tables[table_id]));
     }
     return rows;
 }

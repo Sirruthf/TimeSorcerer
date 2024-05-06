@@ -1,9 +1,9 @@
 import q from '../for_short.js';
-import { RangeList, UserData, idx, px } from '../types.js';
+import { RangeList, timestamp, idx, px } from '../types.js';
 import TimeSelection from './Selection.js';
 
 
-type update_cb_t = (name: string, data: TimeSelection[]) => void;
+type update_cb_t = (name: string, data: RangeList) => void;
 
 
 export default class Row {
@@ -16,9 +16,9 @@ export default class Row {
     end_cb = (event: MouseEvent) => {};
     update_cb: update_cb_t = () => {};
 
-    constructor (title: string, isHeader: true);
-    constructor (title: string, isActive: boolean, update_cb: update_cb_t);
-    constructor (title: string, isActive: boolean, update_cb?: update_cb_t) {
+    constructor (title: string, isHeader: true, utc_id: timestamp[]);
+    constructor (title: string, isActive: boolean, utc_id: timestamp[], update_cb: update_cb_t);
+    constructor (title: string, isActive: boolean, utc_id: timestamp[], update_cb?: update_cb_t) {
         this._isActive = false;
         this.isRanging = false;
         let isHeader = false;
@@ -29,17 +29,16 @@ export default class Row {
         } else
             isHeader = true;
 
-        let now = new Date();
         let result: string = "";
-        let row = new Date(now.getFullYear(),
-            now.getMonth(), now.getDay(), now.getHours() + 1);
-
-        console.log(this._isActive);
 
         result += `<div class="row${isHeader ? " header" : ""}${this._isActive ? " active" : ""}"><div class="name-cell"><div class="name">${title}</div></div>`;
+
+        let now = new Date();
+        let row = new Date(now.getFullYear(),
+            now.getMonth(), now.getDay(), now.getHours() + 1);
         
         for (let i = 0; i < 24; i++) {
-            result += `<div class='hour' data-hour='${row.getHours()}'>${isHeader ? _24_to_12(row.getHours()).join(" ") : ""}</div>`;
+            result += `<div class='hour' data-ts='${utc_id[i]}' data-hour='${row.getHours()}' data-index='${i}'>${isHeader ? _24_to_12(row.getHours()).join(" ") : ""}</div>`;
             row.setHours(row.getHours() + 1);
         }
         
@@ -58,12 +57,37 @@ export default class Row {
 
     init (data: RangeList) {
         for (let entry of data) {
+            let startI = this.timestampToIndex(entry.start);
+            let endI = this.timestampToIndex(entry.end);
+
+            this.markCell(startI, "from");
+            this.markCell(endI, "til");
+            
             this.selections.push(new TimeSelection(
-                this.element, () => this.cellStart, entry.start, entry.end, () => this.step
+                this.element, () => this.cellStart, startI, endI, () => this.step
             ));
-            this.markCell(entry.start, "from");
-            this.markCell(entry.end, "til");
         }
+    }
+
+    get rangeList () {
+        let result: RangeList = [];
+
+        for (let item of this.selections) {
+            result.push({
+                start: this.indexToTimestamp(item.start),
+                end: this.indexToTimestamp(item.end)
+            });
+        }
+
+        return result;
+    }
+
+    timestampToIndex (timestamp: timestamp) {
+        return +(this.element.querySelector<HTMLElement>(`.hour[data-ts='${timestamp}']`)?.dataset.index ?? 0) as idx;
+    }
+
+    indexToTimestamp (index: idx) {
+        return +(this.element.querySelector<HTMLElement>(`.hour[data-index='${index}']`)?.dataset.ts ?? 0) as timestamp;
     }
 
     get name () {
@@ -232,7 +256,7 @@ export default class Row {
 
         if (!overlap) {
             if (this.update_cb)
-                this.update_cb(this.name, this.selections);
+                this.update_cb(this.name, this.rangeList);
 
             endI > startI ?
                 this.markCell(endI, "til") :
@@ -245,7 +269,7 @@ export default class Row {
         this.processOverlap(startI, endI, overlap);
 
         if (this.update_cb)
-            this.update_cb(this.name, this.selections);
+            this.update_cb(this.name, this.rangeList);
     };
 
     processOverlap (startI: idx, endI: idx, overlap: TimeSelection) {
@@ -304,7 +328,6 @@ export default class Row {
         }
     }
 }
-
 
 function intToInd (value: number, step: number): idx {
     return Math.trunc(value / step) as idx;

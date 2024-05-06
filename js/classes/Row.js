@@ -9,7 +9,7 @@ export default class Row {
     range_cb = (event) => { };
     end_cb = (event) => { };
     update_cb = () => { };
-    constructor(title, isActive, update_cb) {
+    constructor(title, isActive, utc_id, update_cb) {
         this._isActive = false;
         this.isRanging = false;
         let isHeader = false;
@@ -19,13 +19,12 @@ export default class Row {
         }
         else
             isHeader = true;
-        let now = new Date();
         let result = "";
-        let row = new Date(now.getFullYear(), now.getMonth(), now.getDay(), now.getHours() + 1);
-        console.log(this._isActive);
         result += `<div class="row${isHeader ? " header" : ""}${this._isActive ? " active" : ""}"><div class="name-cell"><div class="name">${title}</div></div>`;
+        let now = new Date();
+        let row = new Date(now.getFullYear(), now.getMonth(), now.getDay(), now.getHours() + 1);
         for (let i = 0; i < 24; i++) {
-            result += `<div class='hour' data-hour='${row.getHours()}'>${isHeader ? _24_to_12(row.getHours()).join(" ") : ""}</div>`;
+            result += `<div class='hour' data-ts='${utc_id[i]}' data-hour='${row.getHours()}' data-index='${i}'>${isHeader ? _24_to_12(row.getHours()).join(" ") : ""}</div>`;
             row.setHours(row.getHours() + 1);
         }
         result += "</div>";
@@ -39,10 +38,28 @@ export default class Row {
     }
     init(data) {
         for (let entry of data) {
-            this.selections.push(new TimeSelection(this.element, () => this.cellStart, entry.start, entry.end, () => this.step));
-            this.markCell(entry.start, "from");
-            this.markCell(entry.end, "til");
+            let startI = this.timestampToIndex(entry.start);
+            let endI = this.timestampToIndex(entry.end);
+            this.markCell(startI, "from");
+            this.markCell(endI, "til");
+            this.selections.push(new TimeSelection(this.element, () => this.cellStart, startI, endI, () => this.step));
         }
+    }
+    get rangeList() {
+        let result = [];
+        for (let item of this.selections) {
+            result.push({
+                start: this.indexToTimestamp(item.start),
+                end: this.indexToTimestamp(item.end)
+            });
+        }
+        return result;
+    }
+    timestampToIndex(timestamp) {
+        return +(this.element.querySelector(`.hour[data-ts='${timestamp}']`)?.dataset.index ?? 0);
+    }
+    indexToTimestamp(index) {
+        return +(this.element.querySelector(`.hour[data-index='${index}']`)?.dataset.ts ?? 0);
     }
     get name() {
         return this._title;
@@ -179,7 +196,7 @@ export default class Row {
         }
         if (!overlap) {
             if (this.update_cb)
-                this.update_cb(this.name, this.selections);
+                this.update_cb(this.name, this.rangeList);
             endI > startI ?
                 this.markCell(endI, "til") :
                 this.markCell(endI, "from");
@@ -189,7 +206,7 @@ export default class Row {
         this.removeSelection(activeSelection);
         this.processOverlap(startI, endI, overlap);
         if (this.update_cb)
-            this.update_cb(this.name, this.selections);
+            this.update_cb(this.name, this.rangeList);
     }
     ;
     processOverlap(startI, endI, overlap) {
