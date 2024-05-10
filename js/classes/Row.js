@@ -25,7 +25,7 @@ export default class Row {
         let now = new Date();
         let row = new Date(now.getFullYear(), now.getMonth(), date, 0);
         for (let i = 0; i < 24; i++) {
-            result += `<div class='hour${row.getTime() < now.getTime() ? " disabled" : ""}' data-ts='${utc_id[i]}' data-hour='${row.getHours()}' data-index='${i}'>${isHeader ? _24_to_12(row.getHours()).join(" ") : ""}</div>`;
+            result += `<div class='hour${row.getTime() < now.getTime() ? " disabled" : ""}' data-ts='${utc_id[i]}' data-hour='${row.getHours()}' data-index='${i}'>${isHeader ? _24_to_12(row.getHours()).join("<br>") : ""}</div>`;
             row.setHours(row.getHours() + 1);
         }
         result += "</div>";

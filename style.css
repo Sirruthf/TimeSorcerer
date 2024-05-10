@@ -66,6 +66,16 @@ body {
   max-height: 100%;
 }
 
+.theme_button {
+  position: fixed;
+  background: white;
+  right: 2rem;
+  top: 1rem;
+  width: 3rem;
+  height: 3rem;
+  cursor: pointer;
+}
+
 .root {
   display: flex;
   align-items: center;
@@ -80,6 +90,8 @@ body {
   max-width: min(98vw, 1536px);
   height: min(80vh, min(98vw, 1536px) / 2);
   margin-top: 7.5vh;
+  border-radius: 32px;
+  border: 1px solid lightgray;
 }
 .root .day_card:not(:first-child) {
   margin-top: 5vh;
@@ -91,16 +103,19 @@ body {
   position: relative;
   display: table;
   border-collapse: collapse;
-  box-shadow: 0 0 2rem 1rem lightgray;
   height: 100%;
-  border-radius: 32px;
   table-layout: fixed;
+  overflow: hidden;
+  border-radius: 32px;
+  box-shadow: 0 0.5rem 1rem 0.4rem rgb(240, 240, 240);
 }
 .root .sch_table .row.header .name {
   font-weight: bold;
+  font-size: 1.2rem;
 }
 .root .sch_table .row.header .hour {
   text-align: left;
+  color: rgb(103, 111, 126);
 }
 .root .sch_table .row {
   display: table-row;
@@ -115,33 +130,37 @@ body {
   text-align: left;
   vertical-align: middle;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 1rem;
+  width: calc(min(98vw, 1536px) / 26 * 2);
+  font-size: 1.2rem;
   box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
 }
 .root .sch_table .row .name-cell .name {
-  border-left: 8px solid transparent;
+  display: flex;
+  align-items: center;
+  padding-left: calc(1rem + 4px);
 }
 .root .sch_table .row .hour {
   display: table-cell;
   text-align: center;
   vertical-align: middle;
-  width: calc(min(98vw, 1536px) / 25);
+  width: calc(min(98vw, 1536px) / 26);
   font-size: 0.8rem;
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
   transition: background linear 0.1s;
+  font-family: Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
 }
 .root .sch_table .row .hour.selected {
   background: rgba(26, 184, 26, 0.2);
   cursor: move;
 }
 .root .sch_table .row .hour.disabled {
-  background: lightgrey;
+  background: rgb(245, 245, 245);
 }
 .root .sch_table .row .hour h3 {
-  width: calc(min(98vw, 1536px) / 25);
-  font-family: Helvetica, Arial, sans-serif;
+  width: calc(min(98vw, 1536px) / 26);
   font-weight: normal;
   margin: 0;
 }
@@ -150,8 +169,10 @@ body {
   font-weight: bold;
 }
 .root .sch_table .row.active .name {
-  padding-left: 0.4rem;
+  border-left: 4px solid transparent;
   border-color: green;
+  padding-left: 1rem;
+  height: 100%;
 }
 .root .sch_table .row.active .hour:not(.selected):not(.disabled):hover {
   background: rgba(0, 0, 0, 0.1);
@@ -164,6 +185,31 @@ body {
   background: rgba(100, 255, 100, 0.3);
   transform-origin: 0 50%;
   pointer-events: none;
+}
+
+.dark .root {
+  color: rgb(156, 164, 177);
+  background: rgb(27, 30, 34);
+}
+.dark .root .day_card {
+  border-color: black;
+}
+.dark .root .day_card .sch_table {
+  box-shadow: none;
+}
+.dark .root .row.active .hour:not(.selected):not(.disabled):hover {
+  background: rgb(49, 54, 61);
+}
+.dark .root .row .name-cell {
+  background: rgb(41, 45, 51);
+}
+.dark .root .row .hour {
+  background: rgb(41, 45, 51);
+  border-left: 1px solid rgb(49, 54, 61);
+  border-bottom: 1px solid rgb(49, 54, 61);
+}
+.dark .root .row .hour.disabled {
+  background: rgb(50, 54, 61);
 }
 
 .selection-left-border {

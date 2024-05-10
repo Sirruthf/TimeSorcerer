@@ -58,6 +58,12 @@ async function getData (token: string, id: number) {
 }
 
 function init (user_id: number, data: UserData[]) {
+    let theme = q(".theme_button");
+
+    theme.on("click", () => {
+        document.body.classList.toggle("dark");
+    });
+
     let root  = q('.root');
     let content = q(".content");
     let rows: Row[] = [];
